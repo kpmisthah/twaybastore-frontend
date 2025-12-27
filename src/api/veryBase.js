@@ -1,4 +1,4 @@
 // const VERY_BASE_URL = "https://twayba-backend-oln6.onrender.com";
-const VERY_BASE_URL = "http://localhost:5000"
+const VERY_BASE_URL = "https://api.twayba.com";
 
 export default VERY_BASE_URL;

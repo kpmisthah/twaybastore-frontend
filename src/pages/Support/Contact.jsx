@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import VERY_BASE_URL from "../../api/veryBase";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || VERY_BASE_URL;
 const COOLDOWN_MINUTES = 15;
 
 /* Tooltip Component */
@@ -30,7 +31,7 @@ export default function Contact() {
         const user = JSON.parse(raw);
         if (user?.email) setEmail(user.email);
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   const handleSubmit = async (e) => {
@@ -139,9 +140,8 @@ export default function Contact() {
 
             {status && (
               <div
-                className={`text-sm font-medium rounded px-4 py-3 ${
-                  status.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-700"
-                }`}
+                className={`text-sm font-medium rounded px-4 py-3 ${status.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-700"
+                  }`}
               >
                 {status.msg}
               </div>
