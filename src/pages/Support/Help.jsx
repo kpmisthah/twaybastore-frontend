@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 
+import VERY_BASE_URL from "../../api/veryBase.js";
+
 // const ENDPOINT = "http://localhost:5000"; // offline
-const ENDPOINT = "https://twayba-backend-oln6.onrender.com"; // Online
+const ENDPOINT = VERY_BASE_URL; // Online
 
 
 const issueCategories = [
@@ -194,9 +196,8 @@ const Help = () => {
               {messages.map((msg, i) => (
                 <div
                   key={i}
-                  className={`mb-1 ${
-                    msg.from === "You" ? "text-right" : "text-left"
-                  }`}
+                  className={`mb-1 ${msg.from === "You" ? "text-right" : "text-left"
+                    }`}
                 >
                   <span className="font-semibold">{msg.from}: </span>
                   <span>{msg.text}</span>
