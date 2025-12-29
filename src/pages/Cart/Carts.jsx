@@ -14,6 +14,7 @@ const Carts = () => {
   const [stripeOpen, setStripeOpen] = useState(false);
   const [stripeClientSecret, setStripeClientSecret] = useState("");
   const [warnings, setWarnings] = useState({});
+  const [serverTotal, setServerTotal] = useState(null);
   const [liveData, setLiveData] = useState([]); // ⬅️ store stock/price data
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -46,7 +47,7 @@ const Carts = () => {
             (p) =>
               p._id === item._id &&
               (p.color?.toLowerCase?.() || "") ===
-                (item.color?.toLowerCase?.() || "")
+              (item.color?.toLowerCase?.() || "")
           );
           if (!live) return;
 
@@ -98,7 +99,7 @@ const Carts = () => {
           (p) =>
             p._id === item._id &&
             (p.color?.toLowerCase?.() || "") ===
-              (item.color?.toLowerCase?.() || "")
+            (item.color?.toLowerCase?.() || "")
         );
         const maxStock = live ? live.stock : 10;
         return { ...item, qty: Math.min(Math.max(1, newQty), maxStock) };
@@ -141,10 +142,17 @@ const Carts = () => {
       }
 
       const { data } = await axios.post(`${BASE_URL}payments/create-payment`, {
-        amount: total,
+        items: cart.map((item) => ({
+          product: item._id,
+          qty: item.qty,
+          color: item.color,
+          dimensions: item.dimensions,
+        })),
         currency: "eur",
+        userId: user?._id,
       });
       setStripeClientSecret(data.clientSecret);
+      setServerTotal(data.amount);
       setStripeOpen(true);
     } catch (err) {
       toast.error("Payment error: " + (err?.response?.data?.error || err.message));
@@ -178,7 +186,7 @@ const Carts = () => {
           product: item._id,
           color: item.color || undefined,
         })),
-        total,
+        total: serverTotal || total,
         paymentIntentId: paymentIntent.id,
         shipping,
         contact,
@@ -191,7 +199,7 @@ const Carts = () => {
     } catch (err) {
       toast(
         "Order placement failed. " +
-          (err?.response?.data?.message || err.message)
+        (err?.response?.data?.message || err.message)
       );
     }
     setLoading(false);
@@ -233,7 +241,7 @@ const Carts = () => {
                   (p) =>
                     p._id === item._id &&
                     (p.color?.toLowerCase?.() || "") ===
-                      (item.color?.toLowerCase?.() || "")
+                    (item.color?.toLowerCase?.() || "")
                 );
                 const maxStock = live ? live.stock : 10;
 

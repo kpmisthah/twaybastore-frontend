@@ -32,9 +32,16 @@ const GuestCheckoutModal = ({ open, onClose, product }) => {
     setProcessing(true);
     try {
       // 1. Create payment intent
+      // 1. Create payment intent
       const { data } = await axios.post(`${BASE_URL}payments/create-payment`, {
-        amount: product.price * product.qty,
+        items: [{
+          product: product._id,
+          qty: product.qty,
+          color: product.color,
+          dimensions: product.dimensions,
+        }],
         currency: "eur",
+        guestInfo: form,
       });
 
       const result = await stripe.confirmCardPayment(data.clientSecret, {
@@ -65,7 +72,7 @@ const GuestCheckoutModal = ({ open, onClose, product }) => {
         // 2. Save order as "guest"
         await axios.post(`${BASE_URL}orders/guest`, {
           items: [product],
-          total: product.price * product.qty,
+          total: data.amount, // Use server-calculated amount
           paymentIntentId: result.paymentIntent.id,
           guestInfo: form,
         });
