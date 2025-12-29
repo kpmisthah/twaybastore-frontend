@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-
-const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+import BASE_URL from "../api/config";
 
 /* ---------------- Default Fallback Slide ---------------- */
 const defaultSlides = [
@@ -31,7 +30,7 @@ export default function HeroCarousel() {
 
   const fetchBanners = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/banners`);
+      const response = await fetch(`${BASE_URL}banners`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch banners");
