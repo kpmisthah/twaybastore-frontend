@@ -35,12 +35,18 @@ const Christmas = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`${BASE_URL}products`)
+      .get(`${BASE_URL}products?limit=1000`)
       .then((res) => {
-        const filtered = res.data.filter((p) => p.blackFridayOffer === true);
+        // Handle paginated response - products are in .products property
+        const productsData = res.data.products || res.data;
+        const data = Array.isArray(productsData) ? productsData : [];
+        const filtered = data.filter((p) => p.blackFridayOffer === true);
         setProducts(filtered);
       })
-      .catch(() => setProducts([]))
+      .catch((error) => {
+        console.error("Failed to fetch Christmas products:", error);
+        setProducts([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -101,87 +107,87 @@ const Christmas = () => {
         >
           {loading
             ? Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                <SkeletonProduct key={i} />
-              ))
+              <SkeletonProduct key={i} />
+            ))
             : products.map((prod) => (
-                <div
-                  key={prod._id}
-                  className="group rounded-xl bg-white border border-red-200 hover:border-red-500 hover:scale-[1.03] transition flex flex-col cursor-pointer overflow-hidden shadow-sm"
+              <div
+                key={prod._id}
+                className="group rounded-xl bg-white border border-red-200 hover:border-red-500 hover:scale-[1.03] transition flex flex-col cursor-pointer overflow-hidden shadow-sm"
+              >
+                {/* PRODUCT IMAGE */}
+                <Link
+                  to={`/product/${prod._id}`}
+                  onClick={() => handleProductClick(prod._id)}
+                  className="relative w-full h-[180px] sm:h-[190px] bg-red-50 flex items-center justify-center"
                 >
-                  {/* PRODUCT IMAGE */}
-                  <Link
-                    to={`/product/${prod._id}`}
-                    onClick={() => handleProductClick(prod._id)}
-                    className="relative w-full h-[180px] sm:h-[190px] bg-red-50 flex items-center justify-center"
-                  >
-                    <img
-                      src={prod.images?.[0] || "/default-product.png"}
-                      alt={prod.name}
-                      className="object-contain max-h-[200px] w-full transition group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute left-2 bottom-2 flex gap-1">
-                      {prod.discount > 0 && (
-                        <span className="bg-red-500 text-white text-xs px-2 py-[2px] font-semibold shadow">
-                          {prod.discount}% off
-                        </span>
-                      )}
-                      <span className="bg-green-600 text-white text-xs px-2 py-[2px] font-semibold shadow">
-                        Christmas Sale 🎄
+                  <img
+                    src={prod.images?.[0] || "/default-product.png"}
+                    alt={prod.name}
+                    className="object-contain max-h-[200px] w-full transition group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute left-2 bottom-2 flex gap-1">
+                    {prod.discount > 0 && (
+                      <span className="bg-red-500 text-white text-xs px-2 py-[2px] font-semibold shadow">
+                        {prod.discount}% off
                       </span>
-                    </div>
-                  </Link>
+                    )}
+                    <span className="bg-green-600 text-white text-xs px-2 py-[2px] font-semibold shadow">
+                      Christmas Sale 🎄
+                    </span>
+                  </div>
+                </Link>
 
-                  {/* PRODUCT CONTENT */}
-                  <div className="flex-1 flex flex-col px-4 pt-3 pb-4">
-                    <h3 className="text-base font-semibold mb-1 line-clamp-2 min-h-[42px] text-red-700">
-                      {prod.name}
-                    </h3>
-                    <p className="text-red-400 text-xs mb-2 line-clamp-2 min-h-[32px]">
-                      {prod.description}
-                    </p>
+                {/* PRODUCT CONTENT */}
+                <div className="flex-1 flex flex-col px-4 pt-3 pb-4">
+                  <h3 className="text-base font-semibold mb-1 line-clamp-2 min-h-[42px] text-red-700">
+                    {prod.name}
+                  </h3>
+                  <p className="text-red-400 text-xs mb-2 line-clamp-2 min-h-[32px]">
+                    {prod.description}
+                  </p>
 
-                    <div className="text-red-600 font-bold text-lg mb-1">
-                      €{prod.price}
-                    </div>
-                    <div className="text-red-400 font-bold text-xs mb-3">
-                      {prod.category}
-                    </div>
+                  <div className="text-red-600 font-bold text-lg mb-1">
+                    €{prod.price}
+                  </div>
+                  <div className="text-red-400 font-bold text-xs mb-3">
+                    {prod.category}
+                  </div>
 
-                    {/* ACTION BUTTONS */}
-                    <div className="flex flex-col gap-2 mt-auto">
-                      {prod.variants && prod.variants.length > 0 ? (
-                        prod.variants.reduce(
-                          (sum, v) => sum + (parseInt(v.stock, 10) || 0),
-                          0
-                        ) === 0 ? (
-                          <button className="bg-red-200 text-red-500 font-semibold text-sm py-2 rounded cursor-not-allowed">
-                            Sold Out
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleAddToCart(prod)}
-                            className="bg-red-600 text-white font-semibold text-sm py-2 rounded hover:bg-red-700 transition"
-                          >
-                            Add to Cart 🎁
-                          </button>
-                        )
-                      ) : (prod.stock || 0) === 0 ? (
+                  {/* ACTION BUTTONS */}
+                  <div className="flex flex-col gap-2 mt-auto">
+                    {prod.variants && prod.variants.length > 0 ? (
+                      prod.variants.reduce(
+                        (sum, v) => sum + (parseInt(v.stock, 10) || 0),
+                        0
+                      ) === 0 ? (
                         <button className="bg-red-200 text-red-500 font-semibold text-sm py-2 rounded cursor-not-allowed">
                           Sold Out
                         </button>
                       ) : (
                         <button
                           onClick={() => handleAddToCart(prod)}
-                          className="bg-green-600 text-white font-semibold text-sm py-2 rounded hover:bg-green-700 transition"
+                          className="bg-red-600 text-white font-semibold text-sm py-2 rounded hover:bg-red-700 transition"
                         >
-                          Add to Cart 🎄
+                          Add to Cart 🎁
                         </button>
-                      )}
-                    </div>
+                      )
+                    ) : (prod.stock || 0) === 0 ? (
+                      <button className="bg-red-200 text-red-500 font-semibold text-sm py-2 rounded cursor-not-allowed">
+                        Sold Out
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleAddToCart(prod)}
+                        className="bg-green-600 text-white font-semibold text-sm py-2 rounded hover:bg-green-700 transition"
+                      >
+                        Add to Cart 🎄
+                      </button>
+                    )}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
         </div>
 
         {/* EMPTY STATE */}

@@ -29,14 +29,26 @@ const RelatedProducts = ({ productId }) => {
         if (isMounted && res.data && res.data.length > 0) {
           setRelated(res.data);
         } else {
-          const allRes = await axios.get(`${BASE_URL}products`);
-          const filtered = allRes.data.filter((p) => p._id !== productId);
+          const allRes = await axios.get(`${BASE_URL}products?limit=1000`);
+          // Handle paginated response
+          const productsData = allRes.data.products || allRes.data;
+          const data = Array.isArray(productsData) ? productsData : [];
+          const filtered = data.filter((p) => p._id !== productId);
           setRelated(getRandomItems(filtered, 8));
         }
-      } catch {
-        const allRes = await axios.get(`${BASE_URL}products`);
-        const filtered = allRes.data.filter((p) => p._id !== productId);
-        setRelated(getRandomItems(filtered, 8));
+      } catch (error) {
+        console.error("Failed to fetch related products:", error);
+        try {
+          const allRes = await axios.get(`${BASE_URL}products?limit=1000`);
+          // Handle paginated response
+          const productsData = allRes.data.products || allRes.data;
+          const data = Array.isArray(productsData) ? productsData : [];
+          const filtered = data.filter((p) => p._id !== productId);
+          setRelated(getRandomItems(filtered, 8));
+        } catch (err) {
+          console.error("Failed to fetch fallback products:", err);
+          setRelated([]);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
