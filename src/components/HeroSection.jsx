@@ -43,7 +43,7 @@ export default function HeroCarousel() {
         const formattedSlides = data.map((banner) => ({
           desktop: banner.desktopImage,
           mobile: banner.mobileImage,
-          link: banner.link || "/products",
+          link: (banner.link || "/products").trim().replace(/\s*\/\s*/g, "/"),
           title: banner.title,
         }));
         setSlides(formattedSlides);
@@ -92,14 +92,14 @@ export default function HeroCarousel() {
               <img
                 src={s.desktop}
                 alt={s.title || `slide-${i}`}
-                className="hidden md:block w-full h-auto object-cover select-none"
+                className="hidden md:block w-full h-full object-cover select-none aspect-[16/5]"
                 draggable="false"
               />
               {/* Mobile Image */}
               <img
                 src={s.mobile}
                 alt={s.title || `slide-mobile-${i}`}
-                className="block md:hidden w-full h-auto object-cover select-none"
+                className="block md:hidden w-full h-full object-cover select-none aspect-square"
                 draggable="false"
               />
             </Link>
