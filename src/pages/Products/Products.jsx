@@ -186,8 +186,13 @@ const Products = () => {
                   <p className="text-gray-500 text-xs mb-2 line-clamp-2 min-h-[32px]">
                     {prod.description}
                   </p>
-                  <div className="text-gray-800 font-bold text-lg mb-1">
-                    €{prod.price}
+                  <div className="mb-1">
+                    <span className="text-gray-800 font-bold text-lg">€{prod.price}</span>
+                    {prod.realPrice && prod.realPrice > prod.price && (
+                      <span className="ml-2 text-xs text-gray-500 line-through">
+                        €{prod.realPrice}
+                      </span>
+                    )}
                   </div>
                   <div className="text-gray-600 text-xs mb-3">
                     {prod.category}

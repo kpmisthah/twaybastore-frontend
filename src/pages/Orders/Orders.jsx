@@ -45,7 +45,11 @@ const Orders = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
     if (storedUser?._id) {
-      axios.get(`${BASE_URL}orders/my-orders/${storedUser._id}`).then((res) => setOrders(res.data));
+      axios.get(`${BASE_URL}orders/my-orders/${storedUser._id}`).then((res) => {
+        // Handle paginated response: { orders: [...], pagination: {...} }
+        const ordersList = Array.isArray(res.data) ? res.data : (res.data.orders || []);
+        setOrders(ordersList);
+      });
     }
   }, []);
 
@@ -91,11 +95,11 @@ const Orders = () => {
         prev.map((order) =>
           order._id === modalOrder._id
             ? {
-                ...order,
-                status: "Cancelled",
-                cancelReason:
-                  cancelReason === "Other" && cancelReasonText ? cancelReasonText : cancelReason,
-              }
+              ...order,
+              status: "Cancelled",
+              cancelReason:
+                cancelReason === "Other" && cancelReasonText ? cancelReasonText : cancelReason,
+            }
             : order
         )
       );
@@ -216,10 +220,9 @@ const Orders = () => {
             <div className="flex flex-col items-center min-w-0">
               <div
                 className={`flex items-center justify-center rounded-full font-bold transition-all duration-200
-                  ${
-                    idx < currentIndex
-                      ? "bg-green-500 text-white w-6 h-6"
-                      : idx === currentIndex
+                  ${idx < currentIndex
+                    ? "bg-green-500 text-white w-6 h-6"
+                    : idx === currentIndex
                       ? `${STATUS_COLORS[status]} text-white w-7 h-7 scale-110 ring-2 ring-black/60`
                       : "bg-gray-300 text-gray-400 w-5 h-5"
                   }`}
@@ -227,22 +230,20 @@ const Orders = () => {
                 {idx < currentIndex ? <CheckCircle className="w-4 h-4" /> : idx + 1}
               </div>
               <span
-                className={`mt-1 text-[11px] font-semibold text-center ${
-                  idx === currentIndex
+                className={`mt-1 text-[11px] font-semibold text-center ${idx === currentIndex
                     ? "text-black"
                     : idx < currentIndex
-                    ? "text-green-700"
-                    : "text-gray-400"
-                }`}
+                      ? "text-green-700"
+                      : "text-gray-400"
+                  }`}
               >
                 {step}
               </span>
             </div>
             {idx !== STATUS_ORDER.length - 1 && (
               <div
-                className={`flex-1 h-0.5 mx-1 rounded-sm ${
-                  idx < currentIndex ? "bg-green-500" : "bg-gray-300"
-                }`}
+                className={`flex-1 h-0.5 mx-1 rounded-sm ${idx < currentIndex ? "bg-green-500" : "bg-gray-300"
+                  }`}
               />
             )}
           </React.Fragment>
@@ -292,10 +293,9 @@ const Orders = () => {
                 </div>
                 <span
                   className={`text-xs font-medium px-2 py-1 rounded-full border capitalize
-                    ${
-                      order.status === "Delivered"
-                        ? "bg-green-100 text-green-700 border-green-200"
-                        : order.status === "Cancelled"
+                    ${order.status === "Delivered"
+                      ? "bg-green-100 text-green-700 border-green-200"
+                      : order.status === "Cancelled"
                         ? "bg-red-100 text-red-600 border-red-200"
                         : "bg-yellow-100 text-yellow-700 border-yellow-200"
                     }`}
