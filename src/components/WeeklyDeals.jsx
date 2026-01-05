@@ -399,9 +399,9 @@ export default function WeeklyDeals() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get(`${BASE_URL}products`);
-        const list = Array.isArray(res?.data) ? res.data : [];
-        const deals = list.filter((p) => p?.weeklyDeal);
+        const res = await axios.get(`${BASE_URL}products?weeklyDeal=true&limit=50`);
+        const list = res.data?.products || [];
+        const deals = list;
 
         // Shuffle deals randomly
         const shuffled = deals.sort(() => Math.random() - 0.5);
@@ -602,7 +602,7 @@ export default function WeeklyDeals() {
           🔥 Weekly Deals
         </h3>
         <Link
-          to="/products?category=discount"
+          to="/products?weeklyDeal=true"
           className="text-blue-600 text-sm font-medium hover:underline"
         >
           View all →
