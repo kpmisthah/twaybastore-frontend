@@ -43,7 +43,7 @@ export default function HeroCarousel() {
         const formattedSlides = data.map((banner) => ({
           desktop: banner.desktopImage,
           mobile: banner.mobileImage,
-          link: (banner.link || "/products").trim().replace(/\s*\/\s*/g, "/"),
+          link: (banner.link || "/products").trim().replace(/%20/g, "").replace(/\s*\/\s*/g, "/"),
           title: banner.title,
         }));
         setSlides(formattedSlides);
