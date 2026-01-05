@@ -39,6 +39,7 @@ const Products = () => {
 
   const searchTerm = query.get("q") || "";
   const category = query.get("category") || "";
+  const weeklyDeal = query.get("weeklyDeal") || "";
 
   useEffect(() => {
     setLoading(true);
@@ -51,6 +52,10 @@ const Products = () => {
 
     if (category) {
       url += `&category=${encodeURIComponent(category)}`;
+    }
+
+    if (weeklyDeal) {
+      url += `&weeklyDeal=true`;
     }
 
     axios
@@ -66,7 +71,7 @@ const Products = () => {
         setProducts([]);
       })
       .finally(() => setLoading(false));
-  }, [searchTerm, category]); // Added category to dependencies
+  }, [searchTerm, category, weeklyDeal]);
 
   const handleProductClick = async (id) => {
     try {
@@ -120,9 +125,11 @@ const Products = () => {
             ? category.toLowerCase() === "discount"
               ? "Discounted Products"
               : `Category: ${category}`
-            : searchTerm
-              ? `Results for "${searchTerm}"`
-              : "All Products"}
+            : weeklyDeal
+              ? "Weekly Deals"
+              : searchTerm
+                ? `Results for "${searchTerm}"`
+                : "All Products"}
         </h2>
 
         {/* GRID */}
