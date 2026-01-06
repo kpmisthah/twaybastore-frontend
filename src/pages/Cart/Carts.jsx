@@ -35,7 +35,11 @@ const Carts = () => {
         if (cart.length === 0) return;
 
         const { data } = await axios.post(`${BASE_URL}products/check-cart`, {
-          items: cart.map((item) => ({ _id: item._id, color: item.color })),
+          items: cart.map((item) => ({
+            _id: item._id,
+            color: item.color,
+            dimensions: item.dimensions,
+          })),
         });
 
         setLiveData(data);
