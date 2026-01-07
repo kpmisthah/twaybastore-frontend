@@ -49,16 +49,16 @@ const StripeCheckoutModal = ({
         setUser(u);
         const p = u
           ? {
-              name: u.fullName || "",
-              email: u.email || "",
-              phone: u.mobile || u.secondPhone || "",
-              address: u.street || "",
-              city: u.city || "",
-              state: u.state || "",
-              zip: u.zipCode || "",
-              country: (u.country || "").toUpperCase(),
-              area: u.area || "",
-            }
+            name: u.fullName || "",
+            email: u.email || "",
+            phone: u.mobile || u.secondPhone || "",
+            address: u.street || "",
+            city: u.city || "",
+            state: u.state || "",
+            zip: u.zipCode || "",
+            country: (u.country || "").toUpperCase(),
+            area: u.area || "",
+          }
           : null;
         setProfile(p);
         setCountry(p?.country || "");
@@ -196,7 +196,7 @@ const StripeCheckoutModal = ({
       onClick={onClose}
     >
       <div
-        className="relative bg-white p-8 w-full h-full max-w-lg pt-[110px] shadow-2xl border border-gray-100 flex flex-col"
+        className="relative bg-white p-8 w-full h-full max-w-lg pt-[110px] shadow-2xl border border-gray-100 flex flex-col overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -404,8 +404,8 @@ const StripeCheckoutModal = ({
               {processing
                 ? "Processing..."
                 : paymentMethod === "cod"
-                ? "Place COD Order"
-                : `Pay €${amount}`}
+                  ? "Place COD Order"
+                  : `Pay €${amount}`}
             </button>
 
             <div className="flex flex-col items-center text-xs text-gray-500 space-y-2">
