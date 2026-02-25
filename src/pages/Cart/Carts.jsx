@@ -189,6 +189,7 @@ const Carts = () => {
           image: item.image || item.images?.[0] || "",
           product: item._id,
           color: item.color || undefined,
+          dimensions: item.dimensions || undefined,
         })),
         total: serverTotal || total,
         paymentIntentId: paymentIntent.id,
