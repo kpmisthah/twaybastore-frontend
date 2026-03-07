@@ -154,6 +154,21 @@ const Carts = () => {
         })),
         currency: "eur",
         userId: user?._id,
+        shipping: {
+          name: freshUser.fullName,
+          email: freshUser.email,
+          phone: freshUser.mobile,
+          address: freshUser.street,
+          city: freshUser.city,
+          state: freshUser.area,
+          zip: freshUser.zipCode,
+          country: "MT",
+        },
+        contact: {
+          name: freshUser.fullName,
+          email: freshUser.email,
+          phone: freshUser.mobile,
+        },
       });
       setStripeClientSecret(data.clientSecret);
       setServerTotal(data.amount);
@@ -180,6 +195,7 @@ const Carts = () => {
         return;
       }
 
+      const token = localStorage.getItem("token");
       await axios.post(`${BASE_URL}orders`, {
         userId: user._id,
         items: cart.map((item) => ({
@@ -195,7 +211,9 @@ const Carts = () => {
         paymentIntentId: paymentIntent.id,
         shipping,
         contact,
-        couponCode: paymentIntent.couponCode || "", // add this
+        couponCode: paymentIntent.couponCode || "",
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       localStorage.removeItem("cart");
