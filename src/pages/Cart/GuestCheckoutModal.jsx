@@ -31,8 +31,17 @@ const GuestCheckoutModal = ({ open, onClose, product }) => {
 
     setProcessing(true);
     try {
-      // 1. Create payment intent
-      // 1. Create payment intent
+      // 0. Manual Validation
+      const required = ["name", "email", "phone", "street", "city", "zipCode"];
+      for (const field of required) {
+        if (!form[field] || !form[field].trim()) {
+          setError(`Please fill in your ${field}.`);
+          setProcessing(false);
+          return;
+        }
+      }
+
+      // 1. Create payment intent (Pass guestInfo for backup/metadata)
       const { data } = await axios.post(`${BASE_URL}payments/create-payment`, {
         items: [{
           product: product._id,
