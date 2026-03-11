@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import BASE_URL from "../../api/config";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Star, ImagePlus, Loader2 } from "lucide-react";
 
 // Cloudinary settings
@@ -251,8 +251,15 @@ const ProductReview = () => {
       )}
 
       {!token && (
-        <div className="mb-4 text-yellow-800 bg-yellow-50 border border-yellow-200 px-4 py-2 text-sm">
-          Please log in to write a review.
+        <div className="mb-4 text-yellow-800 bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm rounded shadow-sm">
+          Want to share your experience?{" "}
+          <Link
+            to="/login"
+            state={{ from: `/product/${id}` }}
+            className="text-blue-600 font-bold underline hover:text-blue-700"
+          >
+            Please log in to write a review.
+          </Link>
         </div>
       )}
 
