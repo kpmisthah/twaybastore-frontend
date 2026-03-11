@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import BASE_URL from "../../api/config";
 import { Minus, Plus, X } from "lucide-react";
@@ -16,6 +17,7 @@ const Carts = () => {
   const [warnings, setWarnings] = useState({});
   const [serverTotal, setServerTotal] = useState(null);
   const [liveData, setLiveData] = useState([]); // ⬅️ store stock/price data
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
   // Sync cart across tabs
@@ -131,6 +133,7 @@ const Carts = () => {
   const payWithStripe = async () => {
     if (!user?._id) {
       toast.error("Please log in first.");
+      navigate("/login", { state: { from: "/carts" } });
       return;
     }
 
