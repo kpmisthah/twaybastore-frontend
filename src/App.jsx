@@ -67,7 +67,10 @@ const App = () => {
           navigate("/banned", { state: { reason: res.data.banReason } });
         }
       } catch (err) {
-        if (err.response?.data?.banned) {
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          navigate("/login");
+        } else if (err.response?.data?.banned) {
           localStorage.clear();
           navigate("/banned", { state: { reason: err.response.data.reason } });
         }
@@ -77,6 +80,26 @@ const App = () => {
     };
 
     checkBanStatus();
+  }, [navigate]);
+
+  /* 👮 Global Axios Interceptor for 401 */
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Prevent redirect loop if already on login/signup/reset
+          const publicPaths = ["/login", "/signup", "/reset-password"];
+          if (!publicPaths.includes(window.location.pathname)) {
+            localStorage.clear();
+            navigate("/login", { state: { from: window.location.pathname } });
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => axios.interceptors.response.eject(interceptor);
   }, [navigate]);
 
   if (checkingBan)
