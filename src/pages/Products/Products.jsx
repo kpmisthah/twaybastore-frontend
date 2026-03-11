@@ -85,18 +85,28 @@ const Products = () => {
     const stored = localStorage.getItem("cart");
     let cart = stored ? JSON.parse(stored) : [];
 
-    const existing = cart.find((item) => item._id === prod._id);
+    // picked variant (default to first if it has variants)
+    const variant = (prod.variants && prod.variants.length > 0) ? prod.variants[0] : null;
+
+    const cartKey = variant
+      ? prod._id + "_" + (variant.color || "default") + "_" + (variant.dimensions || "")
+      : prod._id;
+
+    const existing = cart.find((item) => item.cartKey === cartKey);
     if (existing) {
       existing.qty += 1;
     } else {
       cart.push({
         _id: prod._id,
         name: prod.name,
-        price: prod.price,
-        realPrice: prod.realPrice,
-        discount: prod.discount,
-        image: prod.images?.[0],
+        price: variant ? (variant.price ?? prod.price) : prod.price,
+        realPrice: variant ? (variant.realPrice ?? prod.realPrice) : prod.realPrice,
+        discount: variant ? (variant.discount ?? prod.discount) : prod.discount,
+        color: variant?.color || "",
+        dimensions: variant?.dimensions || "",
+        image: variant?.images?.[0] || prod.images?.[0],
         qty: 1,
+        cartKey,
       });
     }
     localStorage.setItem("cart", JSON.stringify(cart));
