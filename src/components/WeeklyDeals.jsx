@@ -421,15 +421,13 @@ export default function WeeklyDeals() {
   const handleAddToCart = (product) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const variant = product?.variants?.[0] || null;
-    if (!variant) return toast("Variant unavailable.");
 
-    const cartKey =
-      product._id +
-      "_" +
-      (variant.color || "default") +
-      "_" +
-      (variant.dimensions || "");
-    const stock = variant.stock || 0;
+    // Consistency check: use first variant as default OR product fields if no variants
+    const cartKey = variant
+      ? product._id + "_" + (variant.color || "default") + "_" + (variant.dimensions || "")
+      : product._id;
+
+    const stock = variant ? (variant.stock || 0) : (product.stock || 0);
     if (stock <= 0) return toast("Out of stock!");
 
     const existing = cart.find((item) => item.cartKey === cartKey);
@@ -441,12 +439,12 @@ export default function WeeklyDeals() {
       cart.push({
         _id: product._id,
         name: product.name,
-        price: variant.price ?? product.price,
-        realPrice: variant.realPrice ?? product.realPrice,
-        discount: variant.discount ?? product.discount,
-        color: variant.color || "default",
-        dimensions: variant.dimensions || null,
-        image: variant.images?.[0] || product.images?.[0],
+        price: variant ? (variant.price ?? product.price) : product.price,
+        realPrice: variant ? (variant.realPrice ?? product.realPrice) : product.realPrice,
+        discount: variant ? (variant.discount ?? product.discount) : product.discount,
+        color: variant?.color || "",
+        dimensions: variant?.dimensions || "",
+        image: variant?.images?.[0] || product.images?.[0],
         qty: 1,
         cartKey,
       });
