@@ -33,7 +33,7 @@ const StripeCheckoutModal = ({
   const [profileIncomplete, setProfileIncomplete] = useState(false);
 
   // 👇 Payment method toggle
-  const [paymentMethod, setPaymentMethod] = useState("card"); // "card" | "cod"
+  const [paymentMethod, setPaymentMethod] = useState("card"); // "card" | "cod" | "pickup"
 
   useEffect(() => {
     if (!open) return;
@@ -114,6 +114,32 @@ const StripeCheckoutModal = ({
           state: profile?.state || profile?.area || "",
           zip: profile?.zip || "",
           country: country || "",
+        },
+        contact: {
+          name: profile?.name || "",
+          email: profile?.email || "",
+          phone: profile?.phone || "",
+        },
+      });
+
+      setProcessing(false);
+      return;
+    }
+
+    // ✅ Pickup flow
+    if (paymentMethod === "pickup") {
+      onPaymentSuccess({
+        paymentIntent: { id: "PICKUP-" + Date.now() },
+        paymentMethod: "PICKUP",
+        shipping: {
+          name: profile?.name || "",
+          email: profile?.email || "",
+          phone: profile?.phone || "",
+          address: "Pickup from Shop",
+          city: "Qormi",
+          state: "Malta",
+          zip: "N/A",
+          country: "MT",
         },
         contact: {
           name: profile?.name || "",
@@ -296,6 +322,15 @@ const StripeCheckoutModal = ({
               />
               Cash on Delivery
             </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                value="pickup"
+                checked={paymentMethod === "pickup"}
+                onChange={() => setPaymentMethod("pickup")}
+              />
+              Pickup from Shop
+            </label>
           </div>
         </div>
 
@@ -381,6 +416,47 @@ const StripeCheckoutModal = ({
               </>
             )}
 
+            {paymentMethod === "pickup" && (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600">
+                  Pick up your order at our shop: <br />
+                  <span className="font-semibold text-gray-800">
+                    TWAYBA, 676 St Joseph High St, Hamrun, Malta
+                  </span>
+                </p>
+                <div className="w-full h-48 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                  <iframe
+                    title="Store Location"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3233.1672620610336!2d14.475456!3d35.881729!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x130e5add084c8f0f%3A0x600b21a00a8a8167!2sTwayba!5e0!3m2!1sen!2smt!4v1711466000000!5m2!1sen!2smt"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+                <div className="flex gap-3">
+                  <a
+                    href="https://www.google.com/maps/dir/?api=1&destination=35.881729,14.475456"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-center py-2 px-3 bg-blue-50 text-blue-700 rounded-md text-xs font-semibold border border-blue-200 hover:bg-blue-100 transition"
+                  >
+                    🚀 Get Directions (Start)
+                  </a>
+                  <a
+                    href="https://maps.app.goo.gl/NMG1kSpofKGNk46BA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-center py-2 px-3 bg-gray-50 text-gray-700 rounded-md text-xs font-semibold border border-gray-200 hover:bg-gray-100 transition"
+                  >
+                    📍 View on Large Map
+                  </a>
+                </div>
+              </div>
+            )}
+
             {error && (
               <div className="text-red-600 bg-red-50 border border-red-300 px-4 py-2 rounded text-sm">
                 {error}
@@ -405,7 +481,9 @@ const StripeCheckoutModal = ({
                 ? "Processing..."
                 : paymentMethod === "cod"
                   ? "Place COD Order"
-                  : `Pay €${amount}`}
+                  : paymentMethod === "pickup"
+                    ? "Place Pickup Order"
+                    : `Pay €${amount}`}
             </button>
 
             <div className="flex flex-col items-center text-xs text-gray-500 space-y-2">

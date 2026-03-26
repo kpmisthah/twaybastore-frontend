@@ -225,7 +225,11 @@ function OrderCard({ order, onCancel }) {
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-gray-100 pt-3">
         <div className="text-xs text-gray-500">
-          {order.paymentMethod === "COD" ? "💵 Cash on Delivery" : "💳 Card Payment"}
+          {order.paymentMethod === "COD"
+            ? "💵 Cash on Delivery"
+            : order.paymentMethod === "PICKUP"
+              ? "🏪 Pickup from Shop"
+              : "💳 Card Payment"}
           {order.isPaid && <span className="ml-2 text-emerald-600 font-medium">· Paid</span>}
         </div>
         <span className="text-base font-bold text-gray-900">{formatEuro(order.total)}</span>
