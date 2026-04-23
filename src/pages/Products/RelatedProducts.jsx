@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import BASE_URL from "../../api/config";
 import { Link } from "react-router-dom";
+import { getDisplayPrice, formatPrice } from "../../utils/priceUtils";
 
 function getRandomItems(arr, n) {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -120,16 +121,22 @@ const RelatedProducts = ({ productId }) => {
                   ? item.description.slice(0, 40) + "..."
                   : item.description}
               </div>
-              {/* Price */}
               <div className="mt-auto w-full flex items-end justify-between">
-                <span className="text-lg font-bold text-gray-800">
-                  {formatEuro(item.price)}
-                </span>
-                {item.oldPrice && (
-                  <span className="text-xs line-through text-gray-400 ml-2">
-                    {formatEuro(item.oldPrice)}
-                  </span>
-                )}
+                {(() => {
+                  const { price, realPrice } = getDisplayPrice(item);
+                  return (
+                    <>
+                      <span className="text-lg font-bold text-gray-800">
+                        {formatPrice(price)}
+                      </span>
+                      {realPrice && realPrice > price && (
+                        <span className="text-xs line-through text-gray-400 ml-2">
+                          {formatPrice(realPrice)}
+                        </span>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </Link>

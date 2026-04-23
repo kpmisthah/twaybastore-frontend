@@ -328,28 +328,15 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import BASE_URL from "../api/config";
 import { Link, useNavigate } from "react-router-dom";
+import { getDisplayPrice, formatPrice } from "../utils/priceUtils";
 import { Star, StarHalf, Clock, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 
 const FALLBACK_IMG = "/default-product.png";
-const eur = new Intl.NumberFormat("en-IE", {
-  style: "currency",
-  currency: "EUR",
-});
-
-function formatPrice(v) {
-  const n = Number(v);
-  return Number.isNaN(n) ? "€0.00" : eur.format(n);
-}
 
 function deriveOldPrice(product) {
-  const { price, realPrice, discount } = product ?? {};
-  const p = Number(price);
-  const rp = Number(realPrice);
-  const d = Number(discount);
-  if (!Number.isNaN(rp) && rp > p) return rp;
-  if (!Number.isNaN(d) && d > 0 && d < 100 && !Number.isNaN(p))
-    return +(p / (1 - d / 100)).toFixed(2);
+  const { price, realPrice } = getDisplayPrice(product);
+  if (realPrice && realPrice > price) return realPrice;
   return null;
 }
 
@@ -484,7 +471,7 @@ export default function WeeklyDeals() {
     );
   };
 
-  const offerEnd = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  //   const offerEnd = new Date(Date.now() + 24 * 60 * 60 * 1000); // Removed hardcoded default
 
   const content = useMemo(() => {
     if (state.loading)
@@ -565,17 +552,24 @@ export default function WeeklyDeals() {
                   </div>
 
                   <div className="mt-1 flex items-baseline gap-2">
-                    <span className="text-[15px] font-semibold text-gray-900">
-                      {formatPrice(product.price)}
-                    </span>
-                    {oldPrice && (
-                      <span className="text-xs text-gray-400 line-through">
-                        {formatPrice(oldPrice)}
-                      </span>
-                    )}
+                    {(() => {
+                      const { price, realPrice } = getDisplayPrice(product);
+                      return (
+                        <>
+                          <span className="text-[15px] font-semibold text-gray-900">
+                            {formatPrice(price)}
+                          </span>
+                          {realPrice && realPrice > price && (
+                            <span className="text-xs text-gray-400 line-through">
+                              {formatPrice(realPrice)}
+                            </span>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
 
-                  <Countdown endTime={offerEnd} />
+                  <Countdown endTime={product.offerExpiry || new Date(Date.now() + 24 * 60 * 60 * 1000)} />
                 </div>
 
                 <button

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import BASE_URL from "../../api/config";
 import { Link, useNavigate } from "react-router-dom";
+import { getDisplayPrice } from "../../utils/priceUtils";
 
 const SKELETON_COUNT = 10;
 
@@ -148,7 +149,10 @@ const Christmas = () => {
                   </p>
 
                   <div className="text-red-600 font-bold text-lg mb-1">
-                    €{prod.price}
+                    {(() => {
+                      const { price } = getDisplayPrice(prod);
+                      return `€${price}`;
+                    })()}
                   </div>
                   <div className="text-red-400 font-bold text-xs mb-3">
                     {prod.category}

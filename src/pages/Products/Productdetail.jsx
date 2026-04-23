@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import BASE_URL from "../../api/config";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSocket } from "../../context/SocketContext";
+import toast from "react-hot-toast";
 import ProductReview from "./ProductReview";
 import RelatedProducts from "./RelatedProducts";
 import { Star, StarHalf } from "lucide-react";
@@ -30,24 +32,24 @@ const Productdetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const fetchProduct = async () => {
-    const res = await axios.get(`${BASE_URL}products/${id}`);
-    setProduct(res.data);
-    setMainImg(res.data.images?.[0] || "/default-product.png");
-    setSelectedVariant(res.data.variants?.[0] || null);
+    const fetchProduct = async () => {
+      const res = await axios.get(`${BASE_URL}products/${id}`);
+      setProduct(res.data);
+      setMainImg(res.data.images?.[0] || "/default-product.png");
+      setSelectedVariant(res.data.variants?.[0] || null);
 
-    // 📨 Send product-view analytics + mail trigger
-    const user = JSON.parse(localStorage.getItem("user")); // assuming your app stores logged-in user
-    if (user?._id) {
-      await axios.post(`${BASE_URL}analytics/product-view`, {
-        userId: user._id,
-        productId: res.data._id,
-      });
-    }
-  };
+      // 📨 Send product-view analytics + mail trigger
+      const user = JSON.parse(localStorage.getItem("user")); // assuming your app stores logged-in user
+      if (user?._id) {
+        await axios.post(`${BASE_URL}analytics/product-view`, {
+          userId: user._id,
+          productId: res.data._id,
+        });
+      }
+    };
 
-  fetchProduct();
-}, [id]);
+    fetchProduct();
+  }, [id]);
 
 
   useEffect(() => {
@@ -122,8 +124,25 @@ const Productdetail = () => {
         },
       ];
     });
-    navigate("/carts");
+
+    // Notify Navbar to update count
+    window.dispatchEvent(new Event("cartUpdated"));
+
+    // Show toast
+    toast.success(`${product.name} added to cart!`);
+
+    // Emit socket event
+    if (socket) {
+      socket.emit("add-to-cart", {
+        productName: product.name,
+        image: selectedVariant.images?.[0] || product.images?.[0],
+      });
+    }
+
+    // navigate("/carts");
   };
+
+  const socket = useSocket();
 
   // const handleGuestBuy = () => {
   //   if (!selectedVariant) {
@@ -182,9 +201,9 @@ const Productdetail = () => {
     let descArr = Array.isArray(product.description)
       ? product.description
       : product.description
-          .split(/\n|\. |\;|\•/)
-          .map((s) => s.trim())
-          .filter(Boolean);
+        .split(/\n|\. |\;|\•/)
+        .map((s) => s.trim())
+        .filter(Boolean);
     return (
       <ul className="list-disc pl-5 space-y-1 text-gray-700 text-[15px]">
         {descArr.map((point, i) => (
@@ -230,18 +249,16 @@ const Productdetail = () => {
                       key={color + v.dimensions + i}
                       type="button"
                       className={`px-3 py-2 rounded-lg border text-xs font-medium transition
-                      ${
-                        selectedVariant &&
-                        selectedVariant.color === v.color &&
-                        selectedVariant.dimensions === v.dimensions
+                      ${selectedVariant &&
+                          selectedVariant.color === v.color &&
+                          selectedVariant.dimensions === v.dimensions
                           ? "border-blue-600 bg-blue-50 shadow"
                           : "border-gray-300 bg-white"
-                      }
-                      ${
-                        v.stock === 0
+                        }
+                      ${v.stock === 0
                           ? "opacity-60 cursor-not-allowed"
                           : "cursor-pointer"
-                      }
+                        }
                       hover:border-blue-400
                     `}
                       onClick={() => {
@@ -348,12 +365,10 @@ const Productdetail = () => {
                     height: 200,
                     border: "2px solid #0ea5e9",
                     background: `url('${mainImg}') no-repeat`,
-                    backgroundSize: `${(imgRef.current?.width || 0) * 2}px ${
-                      (imgRef.current?.height || 0) * 2
-                    }px`,
-                    backgroundPosition: `-${zoomPos.x * 2 - 100}px -${
-                      zoomPos.y * 2 - 50
-                    }px`,
+                    backgroundSize: `${(imgRef.current?.width || 0) * 2}px ${(imgRef.current?.height || 0) * 2
+                      }px`,
+                    backgroundPosition: `-${zoomPos.x * 2 - 100}px -${zoomPos.y * 2 - 50
+                      }px`,
                     pointerEvents: "none",
                     zIndex: 10,
                     borderRadius: 8,
@@ -370,9 +385,8 @@ const Productdetail = () => {
                   key={idx}
                   src={img}
                   alt={`img-${idx + 1}`}
-                  className={`w-14 h-14 object-cover rounded border cursor-pointer ${
-                    mainImg === img ? "ring-2 ring-blue-300" : ""
-                  }`}
+                  className={`w-14 h-14 object-cover rounded border cursor-pointer ${mainImg === img ? "ring-2 ring-blue-300" : ""
+                    }`}
                   onMouseEnter={() => setMainImg(img)}
                 />
               ))}

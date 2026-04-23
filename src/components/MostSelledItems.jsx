@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import BASE_URL from "../api/config";
 import { Link } from "react-router-dom";
+import { getDisplayPrice } from "../utils/priceUtils";
 
 const SKELETON_COUNT = 8;
 
@@ -56,12 +57,9 @@ const MostSelledItems = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {filteredItems.map((p) => {
-            const showOld = p.realPrice && p.realPrice > p.price;
-            const oldPrice = showOld
-              ? p.realPrice
-              : p.discount > 0
-              ? (p.price / (1 - p.discount / 100)).toFixed(2)
-              : null;
+            const { price, realPrice } = getDisplayPrice(p);
+            const showOld = realPrice && realPrice > price;
+            const oldDisplayPrice = showOld ? realPrice : null;
 
             return (
               <Link
@@ -101,11 +99,11 @@ const MostSelledItems = () => {
 
                   <div className="flex items-center gap-3 mt-auto">
                     <span className="text-lg font-bold text-black">
-                      €{Number(p.price).toFixed(2)}
+                      €{Number(price).toFixed(2)}
                     </span>
-                    {oldPrice && (
+                    {oldDisplayPrice && (
                       <span className="text-sm text-gray-400 line-through font-medium">
-                        €{Number(oldPrice).toFixed(2)}
+                        €{Number(oldDisplayPrice).toFixed(2)}
                       </span>
                     )}
                   </div>
