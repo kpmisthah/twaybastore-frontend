@@ -5,6 +5,7 @@ import axios from "axios";
 import BASE_URL from "../api/config";
 import { FaHeadset } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { useSocket } from "../context/SocketContext";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -21,6 +22,34 @@ const Navbar = () => {
   const [recent, setRecent] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  const socket = useSocket();
+
+  // Listen for global cart notifications
+  useEffect(() => {
+    if (socket) {
+      socket.on("cart-notification", (data) => {
+        // Show a discrete notification for social proof
+        toast((t) => (
+          <div className="flex items-center gap-3">
+            {data.image && <img src={data.image} alt="" className="w-8 h-8 rounded object-cover" />}
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                Someone just added <span className="font-bold">{data.productName}</span> to their cart!
+              </p>
+            </div>
+          </div>
+        ), {
+          duration: 3000,
+          position: "bottom-left",
+          icon: "🛒",
+        });
+      });
+    }
+    return () => {
+      if (socket) socket.off("cart-notification");
+    };
+  }, [socket]);
 
   // Load recent search history
   useEffect(() => {
@@ -109,7 +138,7 @@ const Navbar = () => {
   useEffect(() => {
     const getCartCount = () => {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      setCartCount(cart.reduce((acc, curr) => acc + (curr.quantity || 1), 0));
+      setCartCount(cart.reduce((acc, curr) => acc + (curr.qty || 1), 0));
     };
     getCartCount();
     window.addEventListener("storage", getCartCount);
@@ -246,9 +275,8 @@ const Navbar = () => {
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-gray-100"
             >
               <Mic
-                className={`${
-                  listening ? "text-blue-600 animate-pulse" : "text-gray-500"
-                } w-5 h-5`}
+                className={`${listening ? "text-blue-600 animate-pulse" : "text-gray-500"
+                  } w-5 h-5`}
               />
             </button>
 
@@ -413,9 +441,8 @@ const Navbar = () => {
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full"
             >
               <Mic
-                className={`${
-                  listening ? "text-blue-600 animate-pulse" : "text-[#213C74]"
-                } w-5 h-5`}
+                className={`${listening ? "text-blue-600 animate-pulse" : "text-[#213C74]"
+                  } w-5 h-5`}
               />
             </button>
           </div>
