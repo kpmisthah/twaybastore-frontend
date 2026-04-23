@@ -17,6 +17,9 @@ const Carts = () => {
   const [warnings, setWarnings] = useState({});
   const [serverTotal, setServerTotal] = useState(null);
   const [liveData, setLiveData] = useState([]); // ⬅️ store stock/price data
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [activeCoupon, setActiveCoupon] = useState("");
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -115,6 +118,7 @@ const Carts = () => {
 
     setCart(updated);
     localStorage.setItem("cart", JSON.stringify(updated));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const removeItem = (id, color) => {
@@ -123,12 +127,28 @@ const Carts = () => {
     );
     setCart(newCart);
     localStorage.setItem("cart", JSON.stringify(newCart));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const delivery = subtotal >= 35 ? 0 : 5;
-  const total = subtotal + delivery;
+  const totalBeforeDiscount = subtotal + delivery;
+  const total = Math.max(0, totalBeforeDiscount - appliedDiscount);
   const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
+
+  const applyCoupon = () => {
+    if (couponInput.toUpperCase() === "TWAYBA5") {
+      if (subtotal >= 30) {
+        setAppliedDiscount(5);
+        setActiveCoupon("TWAYBA5");
+        toast.success("Coupon TWAYBA5 applied! €5 saved.");
+      } else {
+        toast.error("Orders must be over €30 to use this coupon.");
+      }
+    } else {
+      toast.error("Invalid coupon code.");
+    }
+  };
 
   const payWithStripe = async () => {
     if (!user?._id) {
@@ -156,6 +176,7 @@ const Carts = () => {
           dimensions: item.dimensions,
         })),
         currency: "eur",
+        couponCode: activeCoupon,
         userId: user?._id,
         shipping: {
           name: freshUser.fullName,
@@ -214,7 +235,7 @@ const Carts = () => {
         paymentIntentId: paymentIntent.id,
         shipping,
         contact,
-        couponCode: paymentIntent.couponCode || "",
+        couponCode: activeCoupon,
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -390,12 +411,47 @@ const Carts = () => {
                       {delivery === 0 ? "Free" : `€${delivery.toFixed(2)}`}
                     </span>
                   </div>
+
+                  {appliedDiscount > 0 && (
+                    <div className="flex justify-between text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
+                      <span>Discount (Coupon: {activeCoupon})</span>
+                      <span>-€{appliedDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between text-lg font-semibold text-gray-900">
                       <span>Total</span>
                       <span>€{total.toFixed(2)}</span>
                     </div>
                   </div>
+                </div>
+
+                {/* 🏷️ Coupon Input */}
+                <div className="mb-6 group">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Coupon Code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none uppercase"
+                    />
+                    <button
+                      onClick={applyCoupon}
+                      className="bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium transition"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {appliedDiscount > 0 && (
+                    <button
+                      onClick={() => { setAppliedDiscount(0); setActiveCoupon(""); }}
+                      className="text-xs text-red-500 mt-1 hover:underline"
+                    >
+                      Remove coupon
+                    </button>
+                  )}
                 </div>
 
                 <button
