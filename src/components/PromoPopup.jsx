@@ -7,26 +7,36 @@ const PromoPopup = () => {
     const POPUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
     useEffect(() => {
+        const INITIAL_DELAY = 2 * 60 * 1000; // 2 minutes first time
+
         const checkPopup = () => {
             const now = Date.now();
             const lastSeen = parseInt(localStorage.getItem("lastPromoSeen") || "0");
+            const isUsed = localStorage.getItem("promo_used") === "true";
+            const hasShownBefore = localStorage.getItem("hasShownPromo") === "true";
 
-            if (now - lastSeen >= POPUP_INTERVAL) {
+            // If first visit, record current time and exit (will show in 2 mins)
+            if (lastSeen === 0) {
+                localStorage.setItem("lastPromoSeen", now.toString());
+                return;
+            }
+
+            const waitTime = hasShownBefore ? POPUP_INTERVAL : INITIAL_DELAY;
+
+            if (!isUsed && (now - lastSeen >= waitTime)) {
                 setIsVisible(true);
                 localStorage.setItem("lastPromoSeen", now.toString());
+                localStorage.setItem("hasShownPromo", "true");
             }
         };
 
-        // Initial check after 5 seconds to not overwhelm immediately on first load
-        const initialTimer = setTimeout(checkPopup, 5000);
+        // Check every 30 seconds
+        const timer = setInterval(checkPopup, 30000);
 
-        // Regular check every minute
-        const interval = setInterval(checkPopup, 60000);
+        // Final fallback: even if checkPopup() initializes it, we check in 2 mins
+        checkPopup();
 
-        return () => {
-            clearTimeout(initialTimer);
-            clearInterval(interval);
-        };
+        return () => clearInterval(timer);
     }, []);
 
     const handleCopy = () => {

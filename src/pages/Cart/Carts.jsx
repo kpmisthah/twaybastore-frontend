@@ -240,6 +240,10 @@ const Carts = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (activeCoupon === "TWAYBA5") {
+        localStorage.setItem("promo_used", "true");
+      }
+
       localStorage.removeItem("cart");
       setCart([]);
       window.location.href = "/orders";
