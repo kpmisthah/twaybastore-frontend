@@ -28,11 +28,10 @@ export default function BrowseCategories() {
       console.error("Category click failed", err);
     }
 
-    navigate(
-      categoryValue === "All Products"
-        ? "/products"
-        : `/products?category=${encodeURIComponent(categoryValue)}`
-    );
+    const url = categoryValue === "All Products"
+      ? "/products"
+      : `/products?category=${encodeURIComponent(categoryValue)}`;
+    window.open(url, "_blank");
   };
 
   return (
