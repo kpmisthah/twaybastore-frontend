@@ -86,6 +86,8 @@ export default function HeroCarousel() {
             <Link
               key={i}
               to={s.link}
+              target="_blank"
+              rel="noopener noreferrer"
               className="relative shrink-0 w-full cursor-pointer"
             >
               {/* Desktop Image */}
