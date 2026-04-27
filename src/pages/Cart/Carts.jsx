@@ -150,12 +150,12 @@ const Carts = () => {
 
   const applyCoupon = () => {
     if (couponInput.toUpperCase() === "TWAYBA5") {
-      if (subtotal >= 30) {
+      if (subtotal >= 40) {
         setAppliedDiscount(5);
         setActiveCoupon("TWAYBA5");
         toast.success("Coupon TWAYBA5 applied! €5 saved.");
       } else {
-        toast.error("Orders must be over €30 to use this coupon.");
+        toast.error("Orders must be over €40 to use this coupon.");
       }
     } else {
       toast.error("Invalid coupon code.");

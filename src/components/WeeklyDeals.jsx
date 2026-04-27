@@ -595,6 +595,8 @@ export default function WeeklyDeals() {
         </h3>
         <Link
           to="/products?weeklyDeal=true"
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-blue-600 text-sm font-medium hover:underline"
         >
           View all →
