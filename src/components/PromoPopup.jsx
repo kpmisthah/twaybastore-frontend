@@ -21,9 +21,12 @@ const PromoPopup = () => {
                 return;
             }
 
+            const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+
             const waitTime = hasShownBefore ? POPUP_INTERVAL : INITIAL_DELAY;
 
-            if (!isUsed && (now - lastSeen >= waitTime)) {
+            if (!isUsed && (now - lastSeen >= waitTime) && subtotal >= 40) {
                 setIsVisible(true);
                 localStorage.setItem("lastPromoSeen", now.toString());
                 localStorage.setItem("hasShownPromo", "true");
@@ -70,7 +73,7 @@ const PromoPopup = () => {
                     </h2>
 
                     <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-                        Get an instant <span className="font-bold text-blue-600 dark:text-blue-400">€5 DISCOUNT</span> on your order when you spend over €30. Don't wait—shop now!
+                        Get an instant <span className="font-bold text-blue-600 dark:text-blue-400">€5 DISCOUNT</span> on your order when you spend €40 or more. Don't wait—shop now!
                     </p>
 
                     <div className="w-full bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 border border-dashed border-gray-300 dark:border-gray-700 mb-8 group cursor-pointer hover:border-blue-500 transition-colors" onClick={handleCopy}>
@@ -90,7 +93,7 @@ const PromoPopup = () => {
                     </button>
 
                     <p className="text-[11px] text-gray-400 mt-6 italic">
-                        * Offer applicable on orders above €30. Limited time only.
+                        * Offer applicable on orders above €40. Limited time only.
                     </p>
                 </div>
             </div>
