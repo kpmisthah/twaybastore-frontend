@@ -20,6 +20,8 @@ const Carts = () => {
   const [couponInput, setCouponInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [activeCoupon, setActiveCoupon] = useState("");
+  const [deliveryRegion, setDeliveryRegion] = useState("Malta");
+  const [deliveryMethod, setDeliveryMethod] = useState("Shipping");
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -131,7 +133,17 @@ const Carts = () => {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const delivery = subtotal >= 35 ? 0 : 5;
+
+  const isGozo = deliveryRegion === "Gozo";
+  const isPickup = deliveryMethod === "Pickup";
+  const deliveryThreshold = isGozo ? 70 : 35;
+  const deliveryFee = isGozo ? 10 : 5;
+
+  let delivery = 0;
+  if (!isPickup) {
+    delivery = subtotal >= deliveryThreshold ? 0 : deliveryFee;
+  }
+
   const totalBeforeDiscount = subtotal + delivery;
   const total = Math.max(0, totalBeforeDiscount - appliedDiscount);
   const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -176,6 +188,8 @@ const Carts = () => {
           dimensions: item.dimensions,
         })),
         currency: "eur",
+        deliveryRegion,
+        deliveryMethod,
         couponCode: activeCoupon,
         userId: user?._id,
         shipping: {
@@ -235,6 +249,8 @@ const Carts = () => {
         paymentIntentId: paymentIntent.id,
         shipping,
         contact,
+        deliveryRegion,
+        deliveryMethod,
         couponCode: activeCoupon,
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -431,6 +447,75 @@ const Carts = () => {
                   </div>
                 </div>
 
+                {/* 🚚 Delivery Method Selection */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Delivery Method:
+                  </label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="method"
+                        value="Shipping"
+                        checked={deliveryMethod === "Shipping"}
+                        onChange={(e) => setDeliveryMethod(e.target.value)}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <span className="text-sm font-medium">Standard Shipping</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="method"
+                        value="Pickup"
+                        checked={deliveryMethod === "Pickup"}
+                        onChange={(e) => setDeliveryMethod(e.target.value)}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <span className="text-sm font-medium">Pickup from Shop</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 📍 Delivery Region Selection (Only if Shipping) */}
+                {deliveryMethod === "Shipping" && (
+                  <div className="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Deliver To:
+                    </label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="region"
+                          value="Malta"
+                          checked={deliveryRegion === "Malta"}
+                          onChange={(e) => setDeliveryRegion(e.target.value)}
+                          className="w-4 h-4 text-blue-600"
+                        />
+                        <span className="text-sm font-medium">Malta</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="region"
+                          value="Gozo"
+                          checked={deliveryRegion === "Gozo"}
+                          onChange={(e) => setDeliveryRegion(e.target.value)}
+                          className="w-4 h-4 text-blue-600"
+                        />
+                        <span className="text-sm font-medium">Gozo</span>
+                      </label>
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-2">
+                      {isGozo
+                        ? "Gozo delivery: €10 (Free over €70)"
+                        : "Malta delivery: €5 (Free over €35)"}
+                    </p>
+                  </div>
+                )}
+
                 {/* 🏷️ Coupon Input */}
                 <div className="mb-6 group">
                   <div className="flex gap-2">
@@ -468,7 +553,11 @@ const Carts = () => {
                     : `Place Order • €${total.toFixed(2)}`}
                 </button>
                 <p className="text-xs text-gray-500 text-center mt-3">
-                  Free delivery on orders over €35
+                  {isPickup
+                    ? "Collection from: Twayba, 676 St Joseph High St, Hamrun"
+                    : (isGozo
+                      ? "Free delivery on Gozo orders over €70"
+                      : "Free delivery on Malta orders over €35")}
                 </p>
               </div>
             </div>

@@ -2,7 +2,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import BASE_URL from "../../api/config";
-import { CheckCircle, X, Search, Package, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle, X, Search, Package, ShoppingBag, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function formatEuro(amount) {
   if (!amount) return "€0.00";
@@ -201,7 +203,35 @@ function CancelModal({ order, onClose, onCancelled }) {
 
 // ── Order card ───────────────────────────────────────────────────────
 function OrderCard({ order, onCancel }) {
+  const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
   const style = STATUS_STYLE[order.status] || STATUS_STYLE.Processing;
+
+  const handleBuyAgain = (item) => {
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const cartKey = `${item.product}_${item.color || ""}_${item.dimensions || ""}`;
+
+    const existingIndex = existingCart.findIndex(i => i.cartKey === cartKey);
+    if (existingIndex > -1) {
+      existingCart[existingIndex].qty += 1;
+    } else {
+      existingCart.push({
+        _id: item.product,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        color: item.color,
+        dimensions: item.dimensions,
+        qty: 1,
+        cartKey
+      });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(existingCart));
+    window.dispatchEvent(new Event("cartUpdated"));
+    toast.success(`Added ${item.name} to cart!`);
+    navigate("/carts");
+  };
 
   return (
     <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden mb-10 flex flex-col group hover:shadow-xl hover:shadow-blue-50/50 transition-all duration-500">
@@ -228,7 +258,12 @@ function OrderCard({ order, onCancel }) {
         <div className="text-right space-y-1 ml-auto">
           <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Order Ref # {order._id.slice(-8).toUpperCase()}</p>
           <div className="flex gap-4 justify-end items-center mt-1">
-            <button className="text-sm font-black text-blue-600 hover:text-blue-700 transition-colors">Details</button>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-sm font-black text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              {expanded ? "Hide Details" : "Details"}
+            </button>
             <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
             <button className="text-sm font-black text-blue-600 hover:text-blue-700 transition-colors">Invoice</button>
           </div>
@@ -261,6 +296,48 @@ function OrderCard({ order, onCancel }) {
           </div>
         </div>
 
+        {/* 📋 Expanded Details */}
+        {expanded && (
+          <div className="mb-8 p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-blue-600">
+                <MapPin className="w-4 h-4" />
+                <span className="text-xs font-black uppercase tracking-wider">Shipping Address</span>
+              </div>
+              <div className="text-sm text-gray-600 font-bold leading-relaxed px-6">
+                <p>{order.shipping?.name}</p>
+                <p>{order.shipping?.address}</p>
+                <p>{order.shipping?.city}, {order.shipping?.state} {order.shipping?.zip}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-blue-600">
+                <CreditCard className="w-4 h-4" />
+                <span className="text-xs font-black uppercase tracking-wider">Payment Info</span>
+              </div>
+              <div className="text-sm text-gray-600 font-bold leading-relaxed px-6">
+                <p>Method: {order.paymentMethod}</p>
+                <p>Status: {order.isPaid ? "Paid" : "Unpaid"}</p>
+                {order.deliveryMethod && <p>Type: {order.deliveryMethod}</p>}
+                {order.deliveryRegion && <p>Region: {order.deliveryRegion}</p>}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-blue-600">
+                <Info className="w-4 h-4" />
+                <span className="text-xs font-black uppercase tracking-wider">Order Timeline</span>
+              </div>
+              <div className="text-sm text-gray-600 font-bold leading-relaxed px-6">
+                <p>Placed: {new Date(order.createdAt).toLocaleString()}</p>
+                <p>Last Update: {new Date(order.updatedAt).toLocaleString()}</p>
+                {order.status === "Cancelled" && <p className="text-red-500">Cancelled Ref: {new Date(order.updatedAt).toLocaleDateString()}</p>}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Items List */}
         <div className="space-y-12">
           {order.items.map((item, idx) => (
@@ -288,10 +365,16 @@ function OrderCard({ order, onCancel }) {
                 </div>
 
                 <div className="flex flex-col gap-4 shrink-0 sm:items-end lg:justify-center">
-                  <button className="px-10 py-4 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-base font-black rounded-[1.5rem] shadow-xl shadow-yellow-100 transition-all active:scale-95 w-full sm:w-56">
-                    Buy it again
+                  <button
+                    onClick={() => handleBuyAgain(item)}
+                    className="px-10 py-4 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-base font-black rounded-[1.5rem] shadow-xl shadow-yellow-100 transition-all active:scale-95 w-full sm:w-56 flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="w-5 h-5" /> Buy it again
                   </button>
-                  <button className="px-10 py-4 border-2 border-gray-100 hover:border-gray-200 hover:bg-white text-gray-700 text-base font-black rounded-[1.5rem] transition-all shadow-sm w-full sm:w-56">
+                  <button
+                    onClick={() => navigate(`/product/${item.product}`)}
+                    className="px-10 py-4 border-2 border-gray-100 hover:border-gray-200 hover:bg-white text-gray-700 text-base font-black rounded-[1.5rem] transition-all shadow-sm w-full sm:w-56"
+                  >
                     View product
                   </button>
                 </div>

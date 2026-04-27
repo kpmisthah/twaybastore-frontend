@@ -10,7 +10,7 @@ const TopBanner = () => {
           className="transition-opacity flex flex-row gap-2 items-center font-[500] text-[16px] duration-500 ease-in-out opacity-100 animate-fade"
         >
           <FaShippingFast />
-         Free delivery above €35
+          Delivery across Malta & Gozo
         </p>
       </div>
 

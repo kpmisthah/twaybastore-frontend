@@ -7,7 +7,7 @@ const PromoPopup = () => {
     const POPUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
     useEffect(() => {
-        const INITIAL_DELAY = 2 * 60 * 1000; // 2 minutes first time
+        const INITIAL_DELAY = 10 * 60 * 1000; // 10 minutes first time
 
         const checkPopup = () => {
             const now = Date.now();
