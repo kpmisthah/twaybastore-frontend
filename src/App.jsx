@@ -32,7 +32,7 @@ import VERY_BASE_URL from "./api/veryBase.js";
 import Christmas from "./pages/Products/Christmas.jsx";
 import { useMemo } from "react";
 import { SocketProvider } from "./context/SocketContext.jsx";
-import PromoPopup from "./components/PromoPopup.jsx";
+
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
 const App = () => {
@@ -227,7 +227,7 @@ const App = () => {
 
       {/* ✅ WhatsApp floating button */}
       <WhatsAppButton />
-      <PromoPopup />
+
     </SocketProvider>
   );
 };

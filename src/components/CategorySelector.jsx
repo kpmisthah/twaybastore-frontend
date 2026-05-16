@@ -31,7 +31,7 @@ export default function BrowseCategories() {
     const url = categoryValue === "All Products"
       ? "/products"
       : `/products?category=${encodeURIComponent(categoryValue)}`;
-    window.open(url, "_blank");
+    navigate(url);
   };
 
   return (

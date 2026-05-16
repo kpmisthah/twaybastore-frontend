@@ -17,7 +17,6 @@ const Carts = () => {
   const [warnings, setWarnings] = useState({});
   const [serverTotal, setServerTotal] = useState(null);
   const [liveData, setLiveData] = useState([]); // ⬅️ store stock/price data
-  const [couponInput, setCouponInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [activeCoupon, setActiveCoupon] = useState("");
   const [deliveryRegion, setDeliveryRegion] = useState("Malta");
@@ -148,19 +147,7 @@ const Carts = () => {
   const total = Math.max(0, totalBeforeDiscount - appliedDiscount);
   const itemCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
-  const applyCoupon = () => {
-    if (couponInput.toUpperCase() === "TWAYBA5") {
-      if (subtotal >= 40) {
-        setAppliedDiscount(5);
-        setActiveCoupon("TWAYBA5");
-        toast.success("Coupon TWAYBA5 applied! €5 saved.");
-      } else {
-        toast.error("Orders must be over €40 to use this coupon.");
-      }
-    } else {
-      toast.error("Invalid coupon code.");
-    }
-  };
+
 
   const payWithStripe = async () => {
     if (!user?._id) {
@@ -256,9 +243,7 @@ const Carts = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (activeCoupon === "TWAYBA5") {
-        localStorage.setItem("promo_used", "true");
-      }
+
 
       localStorage.removeItem("cart");
       setCart([]);
@@ -462,7 +447,7 @@ const Carts = () => {
                         onChange={(e) => setDeliveryMethod(e.target.value)}
                         className="w-4 h-4 text-blue-600"
                       />
-                      <span className="text-sm font-medium">Standard Shipping</span>
+                      <span className="text-sm font-medium">within 24 hours delivery</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -516,32 +501,7 @@ const Carts = () => {
                   </div>
                 )}
 
-                {/* 🏷️ Coupon Input */}
-                <div className="mb-6 group">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Coupon Code"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
-                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none uppercase"
-                    />
-                    <button
-                      onClick={applyCoupon}
-                      className="bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium transition"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                  {appliedDiscount > 0 && (
-                    <button
-                      onClick={() => { setAppliedDiscount(0); setActiveCoupon(""); }}
-                      className="text-xs text-red-500 mt-1 hover:underline"
-                    >
-                      Remove coupon
-                    </button>
-                  )}
-                </div>
+
 
                 <button
                   onClick={payWithStripe}
