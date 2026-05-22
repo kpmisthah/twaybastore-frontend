@@ -531,6 +531,7 @@ const Carts = () => {
           onPaymentSuccess={handleStripePaymentSuccess}
           amount={total.toFixed(2)}
           disabled={loading}
+          deliveryRegion={deliveryRegion}
         />
       </div>
     </div>
