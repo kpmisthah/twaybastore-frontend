@@ -19,6 +19,7 @@ const StripeCheckoutModal = ({
   onPaymentSuccess,
   amount,
   disabled,
+  deliveryRegion, // Accept deliveryRegion
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -34,6 +35,12 @@ const StripeCheckoutModal = ({
 
   // 👇 Payment method toggle
   const [paymentMethod, setPaymentMethod] = useState("card"); // "card" | "cod" | "pickup"
+
+  useEffect(() => {
+    if (deliveryRegion === "Gozo" && paymentMethod === "cod") {
+      setPaymentMethod("card");
+    }
+  }, [deliveryRegion, paymentMethod]);
 
   useEffect(() => {
     if (!open) return;
@@ -303,31 +310,36 @@ const StripeCheckoutModal = ({
           <h1 className="font-bold text-[16px] text-gray-700">
             Payment Method
           </h1>
-          <div className="flex gap-6 mt-2">
-            <label className="flex items-center gap-2">
+          <div className="flex gap-6 mt-2 flex-wrap">
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="card"
                 checked={paymentMethod === "card"}
                 onChange={() => setPaymentMethod("card")}
+                className="w-4 h-4 text-blue-600 cursor-pointer"
               />
               Card Payment
             </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="cod"
-                checked={paymentMethod === "cod"}
-                onChange={() => setPaymentMethod("cod")}
-              />
-              Cash on Delivery
-            </label>
-            <label className="flex items-center gap-2">
+            {deliveryRegion !== "Gozo" && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={() => setPaymentMethod("cod")}
+                  className="w-4 h-4 text-blue-600 cursor-pointer"
+                />
+                Cash on Delivery
+              </label>
+            )}
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 value="pickup"
                 checked={paymentMethod === "pickup"}
                 onChange={() => setPaymentMethod("pickup")}
+                className="w-4 h-4 text-blue-600 cursor-pointer"
               />
               Pickup from Shop
             </label>
