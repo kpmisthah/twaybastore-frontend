@@ -66,6 +66,11 @@ const Products = () => {
   const weeklyDeal = query.get("weeklyDeal") || "";
   const [sort, setSort] = useState("newest");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [fitnessTab, setFitnessTab] = useState("All Products");
+
+  useEffect(() => {
+    setFitnessTab("All Products");
+  }, [category]);
 
   useEffect(() => {
     setLoading(true);
@@ -167,9 +172,19 @@ const Products = () => {
       return prod.isDiscounted;
     }
 
-    return category
+    let isMatch = category
       ? prod.category?.toLowerCase() === category.toLowerCase()
       : true;
+
+    if (isMatch && category?.toLowerCase() === "fitness") {
+      if (fitnessTab === "Fitness Accessories") {
+        isMatch = prod.subCategory?.toLowerCase() === "fitness accessories" || prod.subCategory?.toLowerCase() === "fitness accessory";
+      } else if (fitnessTab === "Supplements") {
+        isMatch = prod.subCategory?.toLowerCase() === "supplements" || prod.subCategory?.toLowerCase() === "suppliments";
+      }
+    }
+
+    return isMatch;
   });
 
   return (
@@ -255,6 +270,25 @@ const Products = () => {
             Showing {filteredProducts.length} premium items curated for you
           </p>
         </div>
+
+        {/* FITNESS TABS */}
+        {category?.toLowerCase() === "fitness" && (
+          <div className="flex gap-2 sm:gap-4 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+            {["Fitness Accessories", "All Products", "Supplements"].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setFitnessTab(tab)}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+                  fitnessTab === tab 
+                    ? "bg-blue-600 text-white" 
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* GRID */}
         <div
