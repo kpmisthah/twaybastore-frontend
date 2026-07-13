@@ -5,6 +5,7 @@ import BASE_URL from "../../api/config";
 import { Minus, Plus, X } from "lucide-react";
 import StripeCheckoutModal from "./StripeCheckoutModal";
 import toast from "react-hot-toast";
+import { formatStockDisplay } from "../../utils/stockUtils";
 
 const Carts = () => {
   const [cart, setCart] = useState(() => {
@@ -387,7 +388,7 @@ const Carts = () => {
                               </p>
                             )}
                             <p className="text-xs text-gray-500 mt-1">
-                              Stock left: {maxStock}
+                              Stock left: {formatStockDisplay(maxStock)}
                             </p>
                           </div>
                         </div>

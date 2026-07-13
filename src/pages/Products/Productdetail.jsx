@@ -8,6 +8,7 @@ import ProductReview from "./ProductReview";
 import RelatedProducts from "./RelatedProducts";
 import { Star, StarHalf } from "lucide-react";
 import WishlistButton from "../Wishlist/WishlistButton";
+import { formatStockDisplay } from "../../utils/stockUtils";
 // import GuestCheckoutModal from "../Cart/GuestCheckoutModal";
 
 const Productdetail = () => {
@@ -279,7 +280,7 @@ const Productdetail = () => {
                         </span>
                         {v.stock > 0 && (
                           <span className="ml-2 text-green-700 font-semibold">
-                            In stock: {v.stock}
+                            In stock: {formatStockDisplay(v.stock)}
                           </span>
                         )}
                         {v.stock === 0 && (
@@ -407,7 +408,7 @@ const Productdetail = () => {
             {typeof totalStock === "number" && (
               <div className="text-gray-500 text-sm mb-2">
                 <span className="font-medium text-gray-700">Total Stock: </span>
-                <span>{totalStock}</span>
+                <span>{formatStockDisplay(totalStock)}</span>
               </div>
             )}
 
