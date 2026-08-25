@@ -10,6 +10,7 @@ import Profile from "./pages/Profile/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Carts from "./pages/Cart/Carts";
 import Orders from "./pages/Orders/Orders";
+import OrderSuccess from "./pages/Orders/OrderSuccess";
 import Products from "./pages/Products/Products";
 import Productdetail from "./pages/Products/Productdetail";
 import Terms from "./pages/Privacy/Terms.jsx";
@@ -187,6 +188,11 @@ const App = () => {
                 <Orders />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+            path="/order-success/:orderId"
+            element={<OrderSuccess />}
           />
 
           <Route

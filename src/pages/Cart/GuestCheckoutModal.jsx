@@ -79,7 +79,7 @@ const GuestCheckoutModal = ({ open, onClose, product }) => {
 
       if (result.paymentIntent?.status === "succeeded") {
         // 2. Save order as "guest"
-        await axios.post(`${BASE_URL}orders/guest`, {
+        const savedOrder = await axios.post(`${BASE_URL}orders/guest`, {
           items: [product],
           total: data.amount, // Use server-calculated amount
           paymentIntentId: result.paymentIntent.id,
@@ -87,7 +87,7 @@ const GuestCheckoutModal = ({ open, onClose, product }) => {
         });
 
         localStorage.removeItem("cart"); // clear if needed
-        window.location.href = "/orders/thank-you";
+        window.location.href = `/order-success/${savedOrder.data._id}`;
       }
     } catch (err) {
       setError(err.message || "Payment failed.");

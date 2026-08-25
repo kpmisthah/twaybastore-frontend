@@ -222,7 +222,7 @@ const Carts = () => {
       }
 
       const token = localStorage.getItem("token");
-      await axios.post(`${BASE_URL}orders`, {
+      const res = await axios.post(`${BASE_URL}orders`, {
         userId: user._id,
         items: cart.map((item) => ({
           name: item.name,
@@ -244,11 +244,9 @@ const Carts = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-
-
       localStorage.removeItem("cart");
       setCart([]);
-      window.location.href = "/orders";
+      window.location.href = `/order-success/${res.data._id}`;
     } catch (err) {
       toast(
         "Order placement failed. " +
