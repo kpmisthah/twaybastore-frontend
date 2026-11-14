@@ -1,12 +1,17 @@
 // BlackFridayBadge.jsx — the "BLACK FRIDAY" label on products ticked "Show in Black Friday Page" in the admin.
-//  - <BlackFridayBadge band />: a full-width strip across the middle of the product image
-//    (the image container must be `relative`);
+//  - <BlackFridayBadge band />: a diagonal ribbon across the top-right corner of the product image.
+//    The image container must be `relative` and the card (or container) `overflow-hidden`, which cuts
+//    the ribbon's ends off at the corner. size="sm" for small images (related products).
 //  - <BlackFridayBadge />: a small label, e.g. above the name on the product page.
-export default function BlackFridayBadge({ band = false, className = "" }) {
+export default function BlackFridayBadge({ band = false, size = "md", className = "" }) {
   if (band) {
+    const ribbon =
+      size === "sm"
+        ? "top-[10px] -right-[34px] w-[120px] py-[2px] text-[8px] tracking-[0.12em]"
+        : "top-[20px] -right-[44px] w-[170px] py-1 text-[10px] sm:text-[11px] tracking-[0.18em]";
     return (
       <div
-        className={`pointer-events-none absolute inset-x-0 top-1/2 z-10 -translate-y-1/2 bg-black/85 py-1.5 text-center text-xs sm:text-sm font-extrabold uppercase tracking-[0.25em] text-white shadow-lg ${className}`}
+        className={`pointer-events-none absolute z-10 rotate-45 bg-black text-center font-extrabold uppercase text-white shadow-md ${ribbon} ${className}`}
       >
         Black Friday
       </div>

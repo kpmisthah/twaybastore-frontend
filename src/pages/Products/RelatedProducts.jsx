@@ -93,7 +93,7 @@ const RelatedProducts = ({ productId }) => {
             <div className="bg-white transition-shadow duration-200 flex flex-col items-center p-5 min-h-[320px] h-full border border-gray-200 group-hover:scale-[1.03] group-hover:-translate-y-1 transition-transform ease-out cursor-pointer">
               {/* Product image */}
               <div className="relative w-36 h-28 flex items-center justify-center bg-white rounded-xl mb-4 overflow-hidden">
-                {item.blackFridayOffer && <BlackFridayBadge band className="text-[10px] sm:text-[10px] tracking-[0.15em] py-1" />}
+                {item.blackFridayOffer && <BlackFridayBadge band size="sm" />}
                 <img
                   src={item.images?.[0] || "/default-product.png"}
                   alt={item.name}
