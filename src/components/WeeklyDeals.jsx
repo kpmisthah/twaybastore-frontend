@@ -534,7 +534,8 @@ export default function WeeklyDeals({ variant = "weekly" }) {
       );
 
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      // Centred: a short row (e.g. 3 Black Friday products) sits in the middle instead of leaving space on the right.
+      <div className="flex flex-wrap justify-center gap-4">
         {products.map((product) => {
           const discountPct = deriveDiscount(product);
           const oldPrice = deriveOldPrice(product);
@@ -546,7 +547,8 @@ export default function WeeklyDeals({ variant = "weekly" }) {
           return (
             <div
               key={product._id}
-              className="relative bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col h-[420px]"
+              // Same widths as the old 2 / 3 / 6-column grid (gap-4 = 1rem).
+              className="relative bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col h-[420px] w-[calc((100%_-_1rem)/2)] sm:w-[calc((100%_-_2rem)/3)] lg:w-[calc((100%_-_5rem)/6)]"
             >
               <Link
                 to={`/product/${product._id}`}
