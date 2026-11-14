@@ -331,6 +331,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getDisplayPrice, formatPrice } from "../utils/priceUtils";
 import { Star, StarHalf, Clock, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
+import BlackFridayBadge from "./BlackFridayBadge";
 
 const FALLBACK_IMG = "/default-product.png";
 
@@ -378,7 +379,35 @@ function Countdown({ endTime }) {
   );
 }
 
-export default function WeeklyDeals() {
+/**
+ * The two deal rows on the home page:
+ *  - "weekly": products ticked "Weekly Deal";
+ *  - "blackFriday": products ticked "Show in Black Friday Page" — hidden entirely when there are none.
+ */
+const ROWS = {
+  weekly: {
+    // limit=50 then a random 6, so the row changes on each visit.
+    url: "products?weeklyDeal=true&limit=50",
+    keep: () => true,
+    title: "🔥 Weekly Deals",
+    viewAll: "/products?weeklyDeal=true",
+    empty: "No weekly deals yet. Check back soon!",
+    error: "Failed to load weekly deals.",
+  },
+  blackFriday: {
+    url: "products?blackFridayOffer=true&limit=200",
+    // Filtered here too, so this also works on a backend without the blackFridayOffer filter.
+    keep: (p) => p.blackFridayOffer === true,
+    title: "Black Friday Deals",
+    viewAll: "/Christmas",
+    empty: null,
+    error: null,
+  },
+};
+
+export default function WeeklyDeals({ variant = "weekly" }) {
+  const row = ROWS[variant];
+  const dark = variant === "blackFriday";
   const [products, setProducts] = useState([]);
   const [state, setState] = useState({ loading: true, error: null });
   const navigate = useNavigate();
@@ -386,24 +415,20 @@ export default function WeeklyDeals() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get(`${BASE_URL}products?weeklyDeal=true&limit=50`);
-        const list = res.data?.products || [];
-        const deals = list;
+        const res = await axios.get(`${BASE_URL}${row.url}`);
+        const list = (res.data?.products || []).filter(row.keep);
 
-        // Shuffle deals randomly
-        const shuffled = deals.sort(() => Math.random() - 0.5);
-
-        // Limit to 7 only
-        const limited = shuffled.slice(0, 6);
+        // Shuffle deals randomly, 6 shown
+        const limited = [...list].sort(() => Math.random() - 0.5).slice(0, 6);
 
         setProducts(limited);
         setState({ loading: false, error: null });
       } catch {
         setProducts([]);
-        setState({ loading: false, error: "Failed to load weekly deals." });
+        setState({ loading: false, error: row.error });
       }
     })();
-  }, []);
+  }, [row]);
 
   const handleAddToCart = (product) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -504,7 +529,7 @@ export default function WeeklyDeals() {
     if (!products.length)
       return (
         <div className="border border-gray-200 bg-white p-8 text-center text-gray-500 rounded-md">
-          No weekly deals yet. Check back soon!
+          {row.empty}
         </div>
       );
 
@@ -521,19 +546,19 @@ export default function WeeklyDeals() {
           return (
             <div
               key={product._id}
-              className="bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col h-[420px]"
+              className="relative bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col h-[420px]"
             >
-              {/* 🔴 Discount tag */}
-              {discountPct > 0 && (
-                <div className="absolute bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-br-sm">
-                  {discountPct}% OFF
-                </div>
-              )}
-
               <Link
                 to={`/product/${product._id}`}
-                className="bg-gray-50 flex items-center justify-center h-[210px] border-b border-gray-100"
+                className="relative bg-gray-50 flex items-center justify-center h-[210px] border-b border-gray-100"
               >
+                {/* Black Friday band across the image, discount label in the corner */}
+                {product.blackFridayOffer && <BlackFridayBadge band />}
+                {discountPct > 0 && (
+                  <span className="absolute top-2 left-2 z-20 rounded-md bg-red-600 text-white text-[10px] sm:text-[11px] font-extrabold px-2 py-1 shadow-md">
+                    {discountPct}% OFF
+                  </span>
+                )}
                 <img
                   src={product.images?.[0] || FALLBACK_IMG}
                   alt={product.name}
@@ -585,21 +610,39 @@ export default function WeeklyDeals() {
         })}
       </div>
     );
-  }, [products, state.loading, state.error]);
+  }, [products, state.loading, state.error, row]);
+
+  // The Black Friday row only appears when there are Black Friday products (no empty box, no flash while loading).
+  if (dark && (state.loading || state.error || !products.length)) return null;
+
+  const header = (
+    <header className="mb-5 flex items-center justify-between">
+      <h3 className={`text-lg font-semibold tracking-tight ${dark ? "text-white uppercase" : "text-gray-900"}`}>
+        {row.title}
+      </h3>
+      <Link
+        to={row.viewAll}
+        className={`text-sm font-medium hover:underline ${dark ? "text-white" : "text-blue-600"}`}
+      >
+        View all →
+      </Link>
+    </header>
+  );
+
+  if (dark) {
+    return (
+      <section className="max-w-[1810px] mx-auto px-3 sm:px-6 lg:px-8 pt-8">
+        <div className="rounded-xl bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4 sm:p-6 shadow-lg">
+          {header}
+          {content}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="max-w-[1810px] mx-auto px-3 sm:px-6 lg:px-8 py-8">
-      <header className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 tracking-tight">
-          🔥 Weekly Deals
-        </h3>
-        <Link
-          to="/products?weeklyDeal=true"
-          className="text-blue-600 text-sm font-medium hover:underline"
-        >
-          View all →
-        </Link>
-      </header>
+      {header}
       {content}
     </section>
   );

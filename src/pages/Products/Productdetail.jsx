@@ -6,6 +6,7 @@ import { useSocket } from "../../context/SocketContext";
 import toast from "react-hot-toast";
 import ProductReview from "./ProductReview";
 import RelatedProducts from "./RelatedProducts";
+import BlackFridayBadge from "../../components/BlackFridayBadge";
 import { Star, StarHalf } from "lucide-react";
 import WishlistButton from "../Wishlist/WishlistButton";
 import { formatStockDisplay } from "../../utils/stockUtils";
@@ -401,6 +402,7 @@ const Productdetail = () => {
 
           {/* Product Details */}
           <div className="space-y-4">
+            {product.blackFridayOffer && <BlackFridayBadge className="rounded text-xs px-3 py-1" />}
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-snug">
               {product.name}
             </h1>

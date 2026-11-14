@@ -6,6 +6,7 @@ import { useSocket } from "../../context/SocketContext";
 import toast from "react-hot-toast";
 import { getDisplayPrice } from "../../utils/priceUtils";
 import { ChevronDown, Filter, LayoutGrid, List } from "lucide-react";
+import BlackFridayBadge from "../../components/BlackFridayBadge";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -322,6 +323,7 @@ const Products = () => {
                     className="object-contain max-h-[160px] w-full transition group-hover:scale-105"
                     loading="lazy"
                   />
+                  {prod.blackFridayOffer && <BlackFridayBadge band />}
                   <div className="absolute left-2 bottom-2 flex gap-1">
                     {prod.discount && (
                       <span className="bg-blue-900 text-white text-xs px-2 py-[2px] font-semibold shadow">

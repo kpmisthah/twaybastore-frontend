@@ -3,6 +3,7 @@ import axios from "axios";
 import BASE_URL from "../../api/config";
 import { Link } from "react-router-dom";
 import { getDisplayPrice, formatPrice } from "../../utils/priceUtils";
+import BlackFridayBadge from "../../components/BlackFridayBadge";
 
 function getRandomItems(arr, n) {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -91,7 +92,8 @@ const RelatedProducts = ({ productId }) => {
           >
             <div className="bg-white transition-shadow duration-200 flex flex-col items-center p-5 min-h-[320px] h-full border border-gray-200 group-hover:scale-[1.03] group-hover:-translate-y-1 transition-transform ease-out cursor-pointer">
               {/* Product image */}
-              <div className="w-36 h-28 flex items-center justify-center bg-white rounded-xl mb-4 overflow-hidden">
+              <div className="relative w-36 h-28 flex items-center justify-center bg-white rounded-xl mb-4 overflow-hidden">
+                {item.blackFridayOffer && <BlackFridayBadge band className="text-[10px] sm:text-[10px] tracking-[0.15em] py-1" />}
                 <img
                   src={item.images?.[0] || "/default-product.png"}
                   alt={item.name}
