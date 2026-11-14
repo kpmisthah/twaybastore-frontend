@@ -5,13 +5,17 @@
 //  - <BlackFridayBadge />: a small label, e.g. above the name on the product page.
 export default function BlackFridayBadge({ band = false, size = "md", className = "" }) {
   if (band) {
+    // The ribbon's centre sits on the corner's diagonal (same distance from the top and the right
+    // edge), so the visible strip is centred on the text and long enough for "BLACK FRIDAY".
+    //  md: 200×18px, centre 42px in → ~119px of strip visible, text ~95px wide.
+    //  sm: 130×12px, centre 28px in → ~79px visible, text ~65px wide.
     const ribbon =
       size === "sm"
-        ? "top-[10px] -right-[34px] w-[120px] py-[2px] text-[8px] tracking-[0.12em]"
-        : "top-[20px] -right-[44px] w-[170px] py-1 text-[10px] sm:text-[11px] tracking-[0.18em]";
+        ? "top-[22px] -right-[37px] w-[130px] py-[2px] text-[8px] tracking-[0.08em]"
+        : "top-[33px] -right-[58px] w-[200px] py-1 text-[10px] tracking-[0.1em]";
     return (
       <div
-        className={`pointer-events-none absolute z-10 rotate-45 bg-black text-center font-extrabold uppercase text-white shadow-md ${ribbon} ${className}`}
+        className={`pointer-events-none absolute z-10 rotate-45 whitespace-nowrap bg-black text-center font-extrabold uppercase leading-none text-white shadow-md ${ribbon} ${className}`}
       >
         Black Friday
       </div>
