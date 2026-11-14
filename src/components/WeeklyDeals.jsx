@@ -548,7 +548,12 @@ export default function WeeklyDeals({ variant = "weekly" }) {
             <div
               key={product._id}
               // Same widths as the old 2 / 3 / 6-column grid (gap-4 = 1rem).
-              className="relative bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col h-[420px] w-[calc((100%_-_1rem)/2)] sm:w-[calc((100%_-_2rem)/3)] lg:w-[calc((100%_-_5rem)/6)]"
+              className={`relative bg-white rounded-md overflow-hidden flex flex-col h-[420px] w-[calc((100%_-_1rem)/2)] sm:w-[calc((100%_-_2rem)/3)] lg:w-[calc((100%_-_5rem)/6)] ${
+                // Black Friday cards: electric-blue border and glow, the blue of the Black Friday banners.
+                dark
+                  ? "border-2 border-[#1E7BFF] shadow-[0_0_18px_rgba(30,123,255,0.55)]"
+                  : "border border-gray-200"
+              }`}
             >
               <Link
                 to={`/product/${product._id}`}
