@@ -31,6 +31,7 @@ import usePageTracking from "./hooks/usePageTracking.jsx";
 import Banned from "./pages/Banned/Banned.jsx";
 import VERY_BASE_URL from "./api/veryBase.js";
 import Christmas from "./pages/Products/Christmas.jsx";
+import BlackFriday from "./pages/Products/BlackFriday.jsx";
 import { useMemo } from "react";
 import { SocketProvider } from "./context/SocketContext.jsx";
 
@@ -205,6 +206,7 @@ const App = () => {
           />
 
           <Route path="/Christmas" element={<Christmas />} />
+          <Route path="/black-friday" element={<BlackFriday />} />
 
           <Route path="/terms-of-use" element={<Terms />} />
           <Route path="/Privacy" element={<Privacy />} />

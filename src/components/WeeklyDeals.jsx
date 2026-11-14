@@ -399,7 +399,7 @@ const ROWS = {
     // Filtered here too, so this also works on a backend without the blackFridayOffer filter.
     keep: (p) => p.blackFridayOffer === true,
     title: "Black Friday Deals",
-    viewAll: "/Christmas",
+    viewAll: "/black-friday",
     empty: null,
     error: null,
   },
